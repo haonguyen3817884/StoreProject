@@ -77,15 +77,15 @@ class PlaceScreen extends GetView<PlaceScreenController> {
               SizedBox(
                   child: Obx(() {
                     return ListView.builder(
-                        itemCount: controller.placeData.length,
+                        itemCount: controller.categories.length,
                         itemBuilder: (BuildContext context, int itemIndex) {
                           return Obx(() {
                             return PlaceItem(
-                                textValue: controller.placeData[itemIndex]
-                                    ["title"],
-                                isIn: (controller.placeData[itemIndex]
-                                        ["title"] ==
-                                    controller.customerTitle.value));
+                                textValue:
+                                    controller.categories[itemIndex].getName(),
+                                isIn: (controller.categories[itemIndex]
+                                        .getName() ==
+                                    controller.customerCategory.value));
                           });
                         },
                         scrollDirection: Axis.horizontal);
@@ -100,16 +100,16 @@ class PlaceScreen extends GetView<PlaceScreenController> {
                   child: LoadAny(
                     onLoadMore: controller.getLoadMore,
                     status: controller.loadStatus.value,
-                    loadingMsg: 'loading',
-                    errorMsg: 'error',
-                    finishMsg: 'place',
+                    loadingMsg: ConstantValues.loading,
+                    errorMsg: ConstantValues.loadingError,
+                    finishMsg: ConstantValues.loadingFinish,
                     child: CustomScrollView(
                       slivers: <Widget>[
                         SliverList(
                           delegate: SliverChildBuilderDelegate(
                             (BuildContext context, int index) {
                               return PlaceImage(
-                                  places: controller.places.sublist(
+                                  places: controller.customerImages.sublist(
                                       index * ConstantValues.maxItemsInOneLine,
                                       index * ConstantValues.maxItemsInOneLine +
                                           ((isLengthValid(
@@ -123,10 +123,7 @@ class PlaceScreen extends GetView<PlaceScreenController> {
                                               : ConstantValues
                                                   .maxItemsInOneLine)));
                             },
-                            childCount: (getLengthByIndex(
-                                        controller.index.value,
-                                        ConstantValues.maxItems,
-                                        controller.dataLength.value) /
+                            childCount: (controller.dataLength /
                                     ConstantValues.maxItemsInOneLine)
                                 .ceil(),
                           ),

@@ -28,7 +28,7 @@ class PlaceItem extends GetView<PlaceScreenController> {
                         color: const Color(0xFFFFFFFF),
                         width: 1.5)))),
         onTap: () {
-          controller.updateCustomerTitle(textValue);
+          controller.updateCustomerCategory(textValue);
         });
   }
 }

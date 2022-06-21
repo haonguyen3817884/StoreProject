@@ -1,21 +1,28 @@
 import 'package:flutter/cupertino.dart';
+import 'dart:convert' as convert;
 import 'package:get/get.dart';
 import 'package:loadany/loadany.dart';
 import 'package:store_project/base/base_controller.dart';
 
-import "package:store_project/sample_data.dart";
-import 'package:store_project/config/index_loading.dart';
 import "package:store_project/config/constant_values.dart";
 
 import 'package:shrink_sidemenu/shrink_sidemenu.dart';
 
+import "package:store_project/models/category.dart";
+
+import "package:store_project/models/customerImage.dart";
+import 'package:http/http.dart' as http;
+import 'package:flutter/material.dart';
+
+import "package:store_project/widgets/text_simple.dart";
+
 class PlaceScreenController extends BaseController {
   var isButtonOn = false.obs;
 
-  var customerTitle = "".obs;
+  var customerCategory = "".obs;
 
-  List<dynamic> placeData = [].obs;
-  List<String> places = <String>[].obs;
+  List<Category> categories = <Category>[].obs;
+  List<CustomerImage> customerImages = <CustomerImage>[].obs;
 
   var dataLength = 0.obs;
 
@@ -23,14 +30,16 @@ class PlaceScreenController extends BaseController {
 
   var loadStatus = LoadStatus.normal.obs;
 
+  var isCategoriesUpdated = false.obs;
+
   final GlobalKey<SideMenuState> sideMenuKey = GlobalKey<SideMenuState>();
 
   void updateIsButtonOn(bool value) {
     isButtonOn.value = value;
   }
 
-  void updateCustomerTitle(String title) {
-    customerTitle.value = title;
+  void updateCustomerCategory(String category) {
+    customerCategory.value = category;
   }
 
   void updateIndex(int indexValue) {
@@ -45,46 +54,100 @@ class PlaceScreenController extends BaseController {
     dataLength.value = length;
   }
 
-  void setPlaceData(List<dynamic> data) {
-    for (int i = 0; i < data.length; ++i) {
-      dynamic itemInData = data[i];
-      placeData.add(itemInData);
+  void updateIsCategoriesUpdated(bool value) {
+    isCategoriesUpdated.value = value;
+  }
+
+  Future<void> setCategories() async {
+    var endPoint =
+        "http://www.stuckwallpapers.com/GetCategoriesv3json.aspx?version=2.0.1";
+
+    var uri = Uri.parse(endPoint);
+
+    var response = await http.get(uri);
+
+    List<dynamic> decodedData = convert.jsonDecode(response.body);
+
+    for (int i = 0; i < decodedData.length; ++i) {
+      Category category = Category(decodedData[i]);
+
+      categories.add(category);
+    }
+  }
+
+  Future<List<CustomerImage>> getCustomerImages(
+      int startIndex, int endIndex, String category) async {
+    List<CustomerImage> images = <CustomerImage>[];
+
+    var endPoint =
+        'http://www.stuckwallpapers.com/getcontents.aspx?category=$category&end=$endIndex&height=185&s=990D9D9084293CF4AFCE0EDEF9533CBB&scale=3&sort=alltime&start=$startIndex&width=186';
+
+    var uri = Uri.parse(endPoint);
+
+    var response = await http.get(uri);
+
+    List<dynamic> decodedData = convert.jsonDecode(response.body);
+
+    for (int i = 0; i < decodedData.length; ++i) {
+      CustomerImage customerImage = CustomerImage.fromJson(decodedData[i]);
+
+      images.add(customerImage);
+    }
+
+    return images;
+  }
+
+  Future<void> updateCustomerImages(List<CustomerImage> images) async {
+    for (int i = 0; i < images.length; ++i) {
+      CustomerImage customerImage = images[i];
+
+      customerImages.add(customerImage);
     }
   }
 
   Future<void> getRefresh() async {
-    return await Future.delayed(const Duration(milliseconds: 400), () {
-      updateIndex(1);
+    customerImages = <CustomerImage>[].obs;
 
-      updateLoadStatus(LoadStatus.normal);
+    updateDataLength(0);
+
+    return await Future.delayed(const Duration(milliseconds: 400), () async {
+      List<CustomerImage> images = await getCustomerImages(
+          ConstantValues.startIndex,
+          ConstantValues.startIndex + ConstantValues.maxItems,
+          customerCategory.value);
+      await updateCustomerImages(images);
+
+      if (ConstantValues.maxItems + 1 != images.length) {
+        updateLoadStatus(LoadStatus.completed);
+      } else {
+        updateIndex(ConstantValues.startIndex + ConstantValues.maxItems + 1);
+
+        updateLoadStatus(LoadStatus.normal);
+      }
+
+      updateDataLength(customerImages.length);
     });
   }
 
   Future<void> getLoadMore() async {
     updateLoadStatus(LoadStatus.loading);
 
-    return await Future.delayed(const Duration(milliseconds: 5000), () {
-      if (isIndexIn(
-          index.value + 1, ConstantValues.maxItems, dataLength.value)) {
-        updateLoadStatus(LoadStatus.normal);
+    return await Future.delayed(const Duration(milliseconds: 5000), () async {
+      List<CustomerImage> images = await getCustomerImages(index.value,
+          index.value + ConstantValues.maxItems, customerCategory.value);
 
-        updateIndex(index.value + 1);
-      } else {
+      await updateCustomerImages(images);
+
+      if (ConstantValues.maxItems != images.length) {
         updateLoadStatus(LoadStatus.completed);
+      } else {
+        updateIndex(index.value + ConstantValues.maxItems + 1);
+
+        updateLoadStatus(LoadStatus.normal);
       }
+
+      updateDataLength(customerImages.length);
     });
-  }
-
-  List<String> getDataByTitle(String title) {
-    List<String> placesInPlaceData = <String>[];
-
-    for (int i = 0; i < placeData.length; ++i) {
-      if (title == placeData[i]["title"]) {
-        placesInPlaceData = List.from(placeData[i]["places"]);
-      }
-    }
-
-    return placesInPlaceData;
   }
 
   void placeMenu() {
@@ -97,18 +160,59 @@ class PlaceScreenController extends BaseController {
     }
   }
 
+  List<Widget> getMenuItems() {
+    List<Widget> items = <Widget>[];
+
+    for (int i = 0; i < categories.length; ++i) {
+      ListTile item = const ListTile();
+
+      item = ListTile(
+          title: TextSimple(
+              textValue: categories[i].getName(),
+              textColor: const Color(0xFFFFFFFF)),
+          tileColor: Colors.transparent.withOpacity(0.2),
+          shape: Border(
+              bottom: BorderSide(
+                  color: Colors.transparent.withOpacity(0.9), width: 0.3)));
+
+      items.add(item);
+    }
+
+    return items;
+  }
+
   @override
   void onReady() {
     super.onReady();
-    setPlaceData(getData()["data"]);
-    customerTitle.listen((value) {
-      List<String> placesInPlaceData = <String>[];
-      placesInPlaceData = getDataByTitle(value);
-      places = placesInPlaceData.obs;
 
-      updateIndex(1);
-      updateLoadStatus(LoadStatus.normal);
-      updateDataLength(placesInPlaceData.length);
+    setCategories();
+
+    updateIsCategoriesUpdated(true);
+
+    customerCategory.listen((value) async {
+      updateLoadStatus(LoadStatus.loading);
+
+      customerImages = <CustomerImage>[].obs;
+
+      updateDataLength(0);
+
+      await Future.delayed(const Duration(milliseconds: 5000), () async {
+        List<CustomerImage> images = await getCustomerImages(
+            ConstantValues.startIndex,
+            ConstantValues.startIndex + ConstantValues.maxItems,
+            value);
+        await updateCustomerImages(images);
+
+        if (ConstantValues.maxItems + 1 != images.length) {
+          updateLoadStatus(LoadStatus.completed);
+        } else {
+          updateIndex(ConstantValues.startIndex + ConstantValues.maxItems + 1);
+
+          updateLoadStatus(LoadStatus.normal);
+        }
+
+        updateDataLength(customerImages.length);
+      });
     });
   }
 }

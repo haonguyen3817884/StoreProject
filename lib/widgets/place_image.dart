@@ -1,20 +1,24 @@
 import 'package:flutter/material.dart';
 
 import "package:store_project/config/constant_values.dart";
+
+import "package:store_project/models/customerImage.dart";
+
 import "dart:ui";
 
 class PlaceImage extends StatelessWidget {
   const PlaceImage({Key? key, required this.places}) : super(key: key);
 
-  final List<String> places;
+  final List<CustomerImage> places;
 
   List<Widget> getPlaces(BuildContext context) {
     List<Widget> placeArr = <Widget>[];
 
     for (int i = 0; i < places.length; ++i) {
       Widget place = Container(
-          child: Image.network(places[i], loadingBuilder: (BuildContext context,
-              Widget child, ImageChunkEvent? loadingProgress) {
+          child: Image.network(places[i].getCustomerImageUrl(), loadingBuilder:
+              (BuildContext context, Widget child,
+                  ImageChunkEvent? loadingProgress) {
             if (loadingProgress == null) {
               return child;
             } else {
