@@ -39,7 +39,7 @@ class PlaceScreen extends GetView<PlaceScreenController> {
                     statusBarColor: Colors.transparent),
                 backgroundColor: Colors.transparent,
                 title: const TextSimple(
-                    textValue: "place",
+                    textValue: "Wallcraft",
                     textColor: Color(0xFFFFFFFF),
                     textFontWeight: FontWeight.w500,
                     textFontSize: 17.4),
@@ -55,7 +55,7 @@ class PlaceScreen extends GetView<PlaceScreenController> {
             body: Column(children: <Widget>[
               Container(
                   child: Row(children: <Widget>[
-                    const TextSimple(textValue: "place place place"),
+                    const TextSimple(textValue: "Disable ads"),
                     const Expanded(child: SizedBox()),
                     Obx(() {
                       return Switch(
@@ -81,20 +81,21 @@ class PlaceScreen extends GetView<PlaceScreenController> {
                         itemBuilder: (BuildContext context, int itemIndex) {
                           return Obx(() {
                             return PlaceItem(
-                                textValue:
-                                    controller.categories[itemIndex].getName(),
-                                isIn: (controller.categories[itemIndex]
-                                        .getName() ==
-                                    controller.customerCategory.value));
+                                category: controller.categories[itemIndex],
+                                customerCategory:
+                                    controller.customerCategory.value,
+                                itemIndex: itemIndex);
                           });
                         },
+                        controller: controller.scrollController,
                         scrollDirection: Axis.horizontal);
                   }),
                   height: (MediaQuery.of(context).size.height -
                           MediaQueryData.fromWindow(window).padding.top -
                           kToolbarHeight) *
                       0.1),
-              Expanded(child: Obx(() {
+              Expanded(
+                  child: GestureDetector(child: Obx(() {
                 return RefreshIndicator(
                   onRefresh: controller.getRefresh,
                   child: LoadAny(
@@ -132,9 +133,24 @@ class PlaceScreen extends GetView<PlaceScreenController> {
                     ),
                   ),
                 );
+              }), onHorizontalDragEnd: (DragEndDetails dragEndDetails) {
+                if (null == dragEndDetails.primaryVelocity) {
+                  return;
+                }
+                if (0 < dragEndDetails.primaryVelocity!) {
+                  controller
+                      .previousCategory(MediaQuery.of(context).size.width);
+                } else {
+                  controller.nextCategory(MediaQuery.of(context).size.width);
+                }
               }))
             ]),
-            backgroundColor: Colors.black),
+            backgroundColor: Colors.black,
+            floatingActionButton: FloatingActionButton(
+                backgroundColor: Colors.yellow,
+                child: Icon(Icons.add),
+                onPressed: () {},
+                foregroundColor: Colors.black)),
         key: controller.sideMenuKey,
         type: SideMenuType.slide,
         inverse: false,

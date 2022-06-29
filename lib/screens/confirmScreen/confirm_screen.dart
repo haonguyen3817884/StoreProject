@@ -25,7 +25,7 @@ class ConfirmScreen extends GetView<ConfirmScreenController> {
                 const SystemUiOverlayStyle(statusBarColor: Colors.transparent),
             backgroundColor: Colors.transparent),
         body: Center(
-            child: SizedBox(
+            child: Container(
                 child: Column(
                     children: <Widget>[
                       controller.getTitle(),
@@ -37,14 +37,15 @@ class ConfirmScreen extends GetView<ConfirmScreenController> {
                               const EdgeInsets.only(top: 27.4, bottom: 27.4),
                           width: 274.0),
                       Button(
-                          text: "place",
+                          text: "Continue",
                           buttonAction: () {
                             controller.getAction();
                           })
                     ],
                     crossAxisAlignment: CrossAxisAlignment.start,
-                    mainAxisAlignment: MainAxisAlignment.center),
-                width: 274.0)),
+                    mainAxisAlignment: MainAxisAlignment.start),
+                width: 274.0,
+                margin: EdgeInsets.only(top: 74.0))),
         backgroundColor: Colors.black);
   }
 }

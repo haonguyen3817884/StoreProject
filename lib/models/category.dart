@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import 'package:flutter/material.dart';
 
 /// This allows the `User` class to access private members in
 /// the generated file. The value for this is *.g.dart, where
@@ -20,6 +21,18 @@ class Category {
 
   void setName(String categoryName) {
     name = categoryName;
+  }
+
+  List<dynamic> getTexts(TextStyle textStyle) {
+    List<dynamic> texts = [];
+
+    for (int i = 0; i < name.split(" ").length; ++i) {
+      dynamic text = {"text": name.split(" ")[i], "style": textStyle};
+
+      texts.add(text);
+    }
+
+    return texts;
   }
 
   /// A necessary factory constructor for creating a new User instance

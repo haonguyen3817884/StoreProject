@@ -4,7 +4,7 @@ class TextSimple extends StatelessWidget {
   const TextSimple(
       {Key? key,
       required this.textValue,
-      this.textFontSize = 17.4,
+      this.textFontSize = 15.3,
       this.textFontWeight = FontWeight.normal,
       this.textFontFamily = "SF Pro Display",
       this.textColor = const Color.fromARGB(255, 98, 98, 98),

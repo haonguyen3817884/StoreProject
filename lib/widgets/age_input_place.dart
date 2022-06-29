@@ -16,10 +16,10 @@ class AgeInputPlace extends GetView<AgeScreenController> {
     return Column(children: <Widget>[
       Container(
           child: const TextSimple(
-              textValue: "place place place place place place place"),
+              textValue: "To make the app content match your age, specify how"),
           margin: const EdgeInsets.only(top: 7.4, bottom: 0)),
       Container(
-          child: const TextSimple(textValue: "place place place place"),
+          child: const TextSimple(textValue: "old are you"),
           margin: const EdgeInsets.only(top: 0, bottom: 7.4)),
       Obx(() {
         return WheelChooser.integer(
@@ -39,14 +39,16 @@ class AgeInputPlace extends GetView<AgeScreenController> {
       }),
       const SizedBox(height: 174.0),
       Button(
-          text: "place",
+          text: "CONTINUE",
           buttonAction: () {
             controller.placeIn(RouteName.confirmPlace, data: {
-              "title": "place place place place place",
+              "title":
+                  "Allow access to your identifier for tracking and get rid of useless ads",
               "texts": [
-                "place place place place",
-                "place place place place place",
-                "place place place place"
+                "Many people doesn't love ads. But intrusive and useless ads irritates much stronger",
+                "Not a long ago Apple had changed their policies to boost up user control over information about their interests privacy",
+                "This information is analyzed and applied when forming advertisments. As you know this process is called tracking. Tracking allows ad SDK to select ads with goods and services that might be interesting to you.",
+                "Privacy is matters. Regardless of your choice, we still respect you"
               ],
               "action": () {
                 final ageController = Get.put(AgeScreenController());

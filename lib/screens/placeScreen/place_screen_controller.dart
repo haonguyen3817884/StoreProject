@@ -31,8 +31,10 @@ class PlaceScreenController extends BaseController {
   var loadStatus = LoadStatus.normal.obs;
 
   var isCategoriesUpdated = false.obs;
+  var scrollPlace = 0.0.obs;
 
   final GlobalKey<SideMenuState> sideMenuKey = GlobalKey<SideMenuState>();
+  ScrollController scrollController = ScrollController();
 
   void updateIsButtonOn(bool value) {
     isButtonOn.value = value;
@@ -56,6 +58,10 @@ class PlaceScreenController extends BaseController {
 
   void updateIsCategoriesUpdated(bool value) {
     isCategoriesUpdated.value = value;
+  }
+
+  void updateScrollPlace(double scrollPlaceValue) {
+    scrollPlace.value = scrollPlaceValue;
   }
 
   Future<void> setCategories() async {
@@ -138,7 +144,7 @@ class PlaceScreenController extends BaseController {
 
       await updateCustomerImages(images);
 
-      if (ConstantValues.maxItems != images.length) {
+      if (ConstantValues.maxItems + 1 != images.length) {
         updateLoadStatus(LoadStatus.completed);
       } else {
         updateIndex(index.value + ConstantValues.maxItems + 1);
@@ -157,6 +163,44 @@ class PlaceScreenController extends BaseController {
       state.closeSideMenu();
     } else {
       state.openSideMenu();
+    }
+  }
+
+  void nextCategory(double totalWidth) {
+    if ("" != customerCategory.value) {
+      int categoryIndex = 0;
+      categoryIndex = categories
+          .indexWhere((element) => customerCategory.value == element.getName());
+      if (categories.length - 1 != categoryIndex) {
+        updateCustomerCategory(categories[categoryIndex + 1].getName());
+        goToIndex(categoryIndex + 1, totalWidth);
+      }
+    }
+  }
+
+  void previousCategory(double totalWidth) {
+    if ("" != customerCategory.value) {
+      int categoryIndex = 0;
+
+      categoryIndex = categories
+          .indexWhere((element) => customerCategory.value == element.getName());
+
+      if (0 != categoryIndex) {
+        updateCustomerCategory(categories[categoryIndex - 1].getName());
+
+        goToIndex(categoryIndex - 1, totalWidth);
+      }
+    }
+  }
+
+  void goToIndex(int indexValue, double totalWidth) {
+    if (indexValue * 105.4 < scrollController.position.pixels) {
+      scrollController.jumpTo(indexValue * 105.4);
+    } else {
+      if (((indexValue + 1) * 105.4) >
+          (scrollController.position.pixels + totalWidth)) {
+        scrollController.jumpTo(((indexValue + 1) * 105.4) - totalWidth);
+      }
     }
   }
 
@@ -213,6 +257,10 @@ class PlaceScreenController extends BaseController {
 
         updateDataLength(customerImages.length);
       });
+    });
+
+    scrollController.addListener(() {
+      updateScrollPlace(scrollController.position.pixels);
     });
   }
 }

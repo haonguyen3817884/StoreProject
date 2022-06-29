@@ -15,57 +15,11 @@ class PlaceMenu extends GetView<PlaceScreenController> {
         child: ListView(children: <Widget>[
           const ListTile(
               title: TextSimple(
-                  textValue: "place",
+                  textValue: "Wallcraft",
                   textFontSize: 24.3,
                   textFontWeight: FontWeight.w500,
                   textColor: Color(0xFFFFFFFF)),
               leading: TextLogo(textFontSize: 43.0)),
-          Material(
-              child: Container(
-                  child: Column(children: <Widget>[
-                    ListTile(
-                        title: const TextSimple(
-                            textValue: "place", textColor: Color(0xFFFFFFFF)),
-                        leading:
-                            const Icon(Icons.female, color: Color(0xFFFFFFFF)),
-                        minLeadingWidth: 11.5,
-                        tileColor: Colors.transparent.withOpacity(0.2),
-                        shape: Border(
-                            bottom: BorderSide(
-                                color: Colors.transparent.withOpacity(0.9),
-                                width: 0.3))),
-                    ListTile(
-                        title: const TextSimple(
-                            textValue: "place", textColor: Color(0xFFFFFFFF)),
-                        leading:
-                            const Icon(Icons.female, color: Color(0xFFFFFFFF)),
-                        minLeadingWidth: 11.5,
-                        tileColor: Colors.transparent.withOpacity(0.2),
-                        shape: Border(
-                            bottom: BorderSide(
-                                color: Colors.transparent.withOpacity(0.9),
-                                width: 0.3))),
-                    ListTile(
-                        title: const TextSimple(
-                            textValue: "place", textColor: Color(0xFFFFFFFF)),
-                        leading:
-                            const Icon(Icons.female, color: Color(0xFFFFFFFF)),
-                        minLeadingWidth: 11.5,
-                        tileColor: Colors.transparent.withOpacity(0.2),
-                        shape: Border(
-                            bottom: BorderSide(
-                                color: Colors.transparent.withOpacity(0.9),
-                                width: 0.3))),
-                    ListTile(
-                        title: const TextSimple(
-                            textValue: "place", textColor: Color(0xFFFFFFFF)),
-                        leading:
-                            const Icon(Icons.female, color: Color(0xFFFFFFFF)),
-                        minLeadingWidth: 11.5,
-                        tileColor: Colors.transparent.withOpacity(0.2))
-                  ]),
-                  margin: const EdgeInsets.only(top: 7.4, bottom: 7.4)),
-              color: Colors.transparent),
           Material(
               child: Container(
                   child: Obx(() {
