@@ -46,6 +46,8 @@ class PlaceItem extends GetView<PlaceScreenController> {
         onTap: () {
           controller.updateCustomerCategory(category.getName());
           controller.goToIndex(itemIndex, MediaQuery.of(context).size.width);
+
+          controller.pageController.jumpToPage(itemIndex);
         });
   }
 }

@@ -18,6 +18,7 @@ import "dart:ui";
 
 import 'package:shrink_sidemenu/shrink_sidemenu.dart';
 import "package:store_project/widgets/place_menu.dart";
+import "package:store_project/screens/placeScreen/place_image_controller.dart";
 
 class PlaceScreenBinding extends Bindings {
   @override
@@ -94,55 +95,68 @@ class PlaceScreen extends GetView<PlaceScreenController> {
                           MediaQueryData.fromWindow(window).padding.top -
                           kToolbarHeight) *
                       0.1),
-              Expanded(
-                  child: GestureDetector(child: Obx(() {
-                return RefreshIndicator(
-                  onRefresh: controller.getRefresh,
-                  child: LoadAny(
-                    onLoadMore: controller.getLoadMore,
-                    status: controller.loadStatus.value,
-                    loadingMsg: ConstantValues.loading,
-                    errorMsg: ConstantValues.loadingError,
-                    finishMsg: ConstantValues.loadingFinish,
-                    child: CustomScrollView(
-                      slivers: <Widget>[
-                        SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (BuildContext context, int index) {
-                              return PlaceImage(
-                                  places: controller.customerImages.sublist(
-                                      index * ConstantValues.maxItemsInOneLine,
-                                      index * ConstantValues.maxItemsInOneLine +
-                                          ((isLengthValid(
-                                                  index,
+              Expanded(child: Obx(() {
+                return PageView.builder(
+                    itemCount: controller.categories.length,
+                    itemBuilder: (context, index) {
+                      PlaceImageController placeImageController = Get.put(
+                          PlaceImageController(controller.categories[index]),
+                          tag: controller.categories[index].getName());
+
+                      return Obx(() {
+                        return RefreshIndicator(
+                          onRefresh: placeImageController.getRefresh,
+                          child: LoadAny(
+                            onLoadMore: placeImageController.getLoadMore,
+                            status: placeImageController.loadStatus.value,
+                            loadingMsg: ConstantValues.loading,
+                            errorMsg: ConstantValues.loadingError,
+                            finishMsg: ConstantValues.loadingFinish,
+                            child: CustomScrollView(
+                              slivers: <Widget>[
+                                SliverList(
+                                  delegate: SliverChildBuilderDelegate(
+                                    (BuildContext context, int index) {
+                                      return PlaceImage(
+                                          places: placeImageController.customerImages.sublist(
+                                              index *
                                                   ConstantValues
                                                       .maxItemsInOneLine,
-                                                  controller.dataLength.value))
-                                              ? controller.dataLength.value %
-                                                  ConstantValues
-                                                      .maxItemsInOneLine
-                                              : ConstantValues
-                                                  .maxItemsInOneLine)));
-                            },
-                            childCount: (controller.dataLength /
-                                    ConstantValues.maxItemsInOneLine)
-                                .ceil(),
+                                              index *
+                                                      ConstantValues
+                                                          .maxItemsInOneLine +
+                                                  ((isLengthValid(
+                                                          index,
+                                                          ConstantValues
+                                                              .maxItemsInOneLine,
+                                                          placeImageController
+                                                              .dataLength
+                                                              .value))
+                                                      ? placeImageController
+                                                              .dataLength
+                                                              .value %
+                                                          ConstantValues
+                                                              .maxItemsInOneLine
+                                                      : ConstantValues
+                                                          .maxItemsInOneLine)));
+                                    },
+                                    childCount: (placeImageController
+                                                .dataLength.value /
+                                            ConstantValues.maxItemsInOneLine)
+                                        .ceil(),
+                                  ),
+                                ),
+                              ],
+                            ),
                           ),
-                        ),
-                      ],
-                    ),
-                  ),
-                );
-              }), onHorizontalDragEnd: (DragEndDetails dragEndDetails) {
-                if (null == dragEndDetails.primaryVelocity) {
-                  return;
-                }
-                if (0 < dragEndDetails.primaryVelocity!) {
-                  controller
-                      .previousCategory(MediaQuery.of(context).size.width);
-                } else {
-                  controller.nextCategory(MediaQuery.of(context).size.width);
-                }
+                        );
+                      });
+                    },
+                    controller: controller.pageController,
+                    onPageChanged: (int index) {
+                      controller.changeCategoryPosition(
+                          MediaQuery.of(context).size.width, index);
+                    });
               }))
             ]),
             backgroundColor: Colors.black,

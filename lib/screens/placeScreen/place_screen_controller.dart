@@ -22,19 +22,13 @@ class PlaceScreenController extends BaseController {
   var customerCategory = "".obs;
 
   List<Category> categories = <Category>[].obs;
-  List<CustomerImage> customerImages = <CustomerImage>[].obs;
-
-  var dataLength = 0.obs;
-
-  var index = 1.obs;
-
-  var loadStatus = LoadStatus.normal.obs;
 
   var isCategoriesUpdated = false.obs;
-  var scrollPlace = 0.0.obs;
 
   final GlobalKey<SideMenuState> sideMenuKey = GlobalKey<SideMenuState>();
   ScrollController scrollController = ScrollController();
+
+  PageController pageController = PageController();
 
   void updateIsButtonOn(bool value) {
     isButtonOn.value = value;
@@ -44,24 +38,8 @@ class PlaceScreenController extends BaseController {
     customerCategory.value = category;
   }
 
-  void updateIndex(int indexValue) {
-    index.value = indexValue;
-  }
-
-  void updateLoadStatus(LoadStatus placeStatus) {
-    loadStatus.value = placeStatus;
-  }
-
-  void updateDataLength(int length) {
-    dataLength.value = length;
-  }
-
   void updateIsCategoriesUpdated(bool value) {
     isCategoriesUpdated.value = value;
-  }
-
-  void updateScrollPlace(double scrollPlaceValue) {
-    scrollPlace.value = scrollPlaceValue;
   }
 
   Future<void> setCategories() async {
@@ -79,81 +57,8 @@ class PlaceScreenController extends BaseController {
 
       categories.add(category);
     }
-  }
 
-  Future<List<CustomerImage>> getCustomerImages(
-      int startIndex, int endIndex, String category) async {
-    List<CustomerImage> images = <CustomerImage>[];
-
-    var endPoint =
-        'http://www.stuckwallpapers.com/getcontents.aspx?category=$category&end=$endIndex&height=185&s=990D9D9084293CF4AFCE0EDEF9533CBB&scale=3&sort=alltime&start=$startIndex&width=186';
-
-    var uri = Uri.parse(endPoint);
-
-    var response = await http.get(uri);
-
-    List<dynamic> decodedData = convert.jsonDecode(response.body);
-
-    for (int i = 0; i < decodedData.length; ++i) {
-      CustomerImage customerImage = CustomerImage.fromJson(decodedData[i]);
-
-      images.add(customerImage);
-    }
-
-    return images;
-  }
-
-  Future<void> updateCustomerImages(List<CustomerImage> images) async {
-    for (int i = 0; i < images.length; ++i) {
-      CustomerImage customerImage = images[i];
-
-      customerImages.add(customerImage);
-    }
-  }
-
-  Future<void> getRefresh() async {
-    customerImages = <CustomerImage>[].obs;
-
-    updateDataLength(0);
-
-    return await Future.delayed(const Duration(milliseconds: 400), () async {
-      List<CustomerImage> images = await getCustomerImages(
-          ConstantValues.startIndex,
-          ConstantValues.startIndex + ConstantValues.maxItems,
-          customerCategory.value);
-      await updateCustomerImages(images);
-
-      if (ConstantValues.maxItems + 1 != images.length) {
-        updateLoadStatus(LoadStatus.completed);
-      } else {
-        updateIndex(ConstantValues.startIndex + ConstantValues.maxItems + 1);
-
-        updateLoadStatus(LoadStatus.normal);
-      }
-
-      updateDataLength(customerImages.length);
-    });
-  }
-
-  Future<void> getLoadMore() async {
-    updateLoadStatus(LoadStatus.loading);
-
-    return await Future.delayed(const Duration(milliseconds: 5000), () async {
-      List<CustomerImage> images = await getCustomerImages(index.value,
-          index.value + ConstantValues.maxItems, customerCategory.value);
-
-      await updateCustomerImages(images);
-
-      if (ConstantValues.maxItems + 1 != images.length) {
-        updateLoadStatus(LoadStatus.completed);
-      } else {
-        updateIndex(index.value + ConstantValues.maxItems + 1);
-
-        updateLoadStatus(LoadStatus.normal);
-      }
-
-      updateDataLength(customerImages.length);
-    });
+    updateIsCategoriesUpdated(true);
   }
 
   void placeMenu() {
@@ -166,30 +71,11 @@ class PlaceScreenController extends BaseController {
     }
   }
 
-  void nextCategory(double totalWidth) {
+  void changeCategoryPosition(double totalWidth, int indexValue) {
     if ("" != customerCategory.value) {
-      int categoryIndex = 0;
-      categoryIndex = categories
-          .indexWhere((element) => customerCategory.value == element.getName());
-      if (categories.length - 1 != categoryIndex) {
-        updateCustomerCategory(categories[categoryIndex + 1].getName());
-        goToIndex(categoryIndex + 1, totalWidth);
-      }
-    }
-  }
+      updateCustomerCategory(categories[indexValue].getName());
 
-  void previousCategory(double totalWidth) {
-    if ("" != customerCategory.value) {
-      int categoryIndex = 0;
-
-      categoryIndex = categories
-          .indexWhere((element) => customerCategory.value == element.getName());
-
-      if (0 != categoryIndex) {
-        updateCustomerCategory(categories[categoryIndex - 1].getName());
-
-        goToIndex(categoryIndex - 1, totalWidth);
-      }
+      goToIndex(indexValue, totalWidth);
     }
   }
 
@@ -231,36 +117,10 @@ class PlaceScreenController extends BaseController {
 
     setCategories();
 
-    updateIsCategoriesUpdated(true);
-
-    customerCategory.listen((value) async {
-      updateLoadStatus(LoadStatus.loading);
-
-      customerImages = <CustomerImage>[].obs;
-
-      updateDataLength(0);
-
-      await Future.delayed(const Duration(milliseconds: 5000), () async {
-        List<CustomerImage> images = await getCustomerImages(
-            ConstantValues.startIndex,
-            ConstantValues.startIndex + ConstantValues.maxItems,
-            value);
-        await updateCustomerImages(images);
-
-        if (ConstantValues.maxItems + 1 != images.length) {
-          updateLoadStatus(LoadStatus.completed);
-        } else {
-          updateIndex(ConstantValues.startIndex + ConstantValues.maxItems + 1);
-
-          updateLoadStatus(LoadStatus.normal);
-        }
-
-        updateDataLength(customerImages.length);
-      });
-    });
-
-    scrollController.addListener(() {
-      updateScrollPlace(scrollController.position.pixels);
+    isCategoriesUpdated.listen((bool isUpdated) {
+      if (isUpdated) {
+        updateCustomerCategory(categories[0].getName());
+      }
     });
   }
 }
