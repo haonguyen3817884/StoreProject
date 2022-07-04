@@ -24,7 +24,9 @@ class PlaceMenu extends GetView<PlaceScreenController> {
               child: Container(
                   child: Obx(() {
                     return (controller.isCategoriesUpdated.value)
-                        ? Column(children: controller.getMenuItems())
+                        ? Column(
+                            children: controller.getMenuItems(
+                                MediaQuery.of(context).size.width))
                         : Column();
                   }),
                   margin: const EdgeInsets.only(top: 7.4, bottom: 7.4)),

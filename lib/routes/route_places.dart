@@ -5,6 +5,7 @@ import "package:store_project/screens/ageScreen/age_screen.dart";
 import "package:store_project/screens/placeScreen/place_screen.dart";
 
 import "package:store_project/screens/confirmScreen/confirm_screen.dart";
+import "package:store_project/screens/imageScreen/image_screen.dart";
 
 class RoutePlaces {
   static List<GetPage> places = <GetPage>[
@@ -19,6 +20,10 @@ class RoutePlaces {
     GetPage(
         name: RouteName.confirmPlace,
         page: () => const ConfirmScreen(),
-        binding: ConfirmScreenBinding())
+        binding: ConfirmScreenBinding()),
+    GetPage(
+        name: RouteName.imagePlace,
+        page: () => const ImageScreen(),
+        binding: ImageScreenBinding())
   ];
 }

@@ -16,6 +16,8 @@ import 'package:flutter/material.dart';
 
 import "package:store_project/widgets/text_simple.dart";
 
+import "package:store_project/base/services/category_api.dart";
+
 class PlaceScreenController extends BaseController {
   var isButtonOn = false.obs;
 
@@ -24,6 +26,8 @@ class PlaceScreenController extends BaseController {
   List<Category> categories = <Category>[].obs;
 
   var isCategoriesUpdated = false.obs;
+
+  final _categoryApi = CategoryApi();
 
   final GlobalKey<SideMenuState> sideMenuKey = GlobalKey<SideMenuState>();
   ScrollController scrollController = ScrollController();
@@ -43,19 +47,10 @@ class PlaceScreenController extends BaseController {
   }
 
   Future<void> setCategories() async {
-    var endPoint =
-        "http://www.stuckwallpapers.com/GetCategoriesv3json.aspx?version=2.0.1";
+    List<Category> apiCategories = await _categoryApi.getCategories();
 
-    var uri = Uri.parse(endPoint);
-
-    var response = await http.get(uri);
-
-    List<dynamic> decodedData = convert.jsonDecode(response.body);
-
-    for (int i = 0; i < decodedData.length; ++i) {
-      Category category = Category(decodedData[i]);
-
-      categories.add(category);
+    for (int i = 0; i < apiCategories.length; ++i) {
+      categories.add(apiCategories[i]);
     }
 
     updateIsCategoriesUpdated(true);
@@ -90,7 +85,13 @@ class PlaceScreenController extends BaseController {
     }
   }
 
-  List<Widget> getMenuItems() {
+  void closeMenu() {
+    final state = sideMenuKey.currentState!;
+
+    state.closeSideMenu();
+  }
+
+  List<Widget> getMenuItems(double totalWidth) {
     List<Widget> items = <Widget>[];
 
     for (int i = 0; i < categories.length; ++i) {
@@ -103,7 +104,14 @@ class PlaceScreenController extends BaseController {
           tileColor: Colors.transparent.withOpacity(0.2),
           shape: Border(
               bottom: BorderSide(
-                  color: Colors.transparent.withOpacity(0.9), width: 0.3)));
+                  color: Colors.transparent.withOpacity(0.9), width: 0.3)),
+          onTap: () {
+            updateCustomerCategory(categories[i].getName());
+            goToIndex(i, totalWidth);
+            pageController.jumpToPage(i);
+
+            closeMenu();
+          });
 
       items.add(item);
     }
