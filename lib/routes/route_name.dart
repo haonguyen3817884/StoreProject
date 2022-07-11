@@ -1,5 +1,6 @@
 class RouteName {
-  static const String agePlace = "/agePlace";
-  static const String placePlace = "/placePlace";
-  static const String confirmPlace = "/confirmPlace";
+  static const String ageScreen = "/ageScreen";
+  static const String mainScreen = "/mainScreen";
+  static const String confirmScreen = "/confirmScreen";
+  static const String imageScreen = "/imageScreen";
 }

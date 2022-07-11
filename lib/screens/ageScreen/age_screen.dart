@@ -58,10 +58,10 @@ class AgeScreen extends GetView<AgeScreenController> {
                     child: const TextLogo(),
                     margin: const EdgeInsets.only(
                         top: 0, left: 0, right: 0, bottom: 74)),
-                const SizedBox(
-                    child: Divider(
+                SizedBox(
+                    child: const Divider(
                         color: Color.fromARGB(255, 98, 98, 98), thickness: 0.8),
-                    width: 148.0),
+                    width: MediaQuery.of(context).size.width * 0.4),
                 Expanded(child: Obx(() {
                   return (controller.isText.value)
                       ? const AgeTextPlace()

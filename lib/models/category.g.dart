@@ -6,10 +6,6 @@ part of 'category.dart';
 // JsonSerializableGenerator
 // **************************************************************************
 
-Category _$CategoryFromJson(Map<String, dynamic> json) => Category(
-      json['categoryName'] as String,
+Category _$CategoryFromJson(String categoryName) => Category(
+      categoryName,
     );
-
-Map<String, dynamic> _$CategoryToJson(Category instance) => <String, dynamic>{
-      'categoryName': instance.name,
-    };

@@ -34,12 +34,12 @@ bool isLastIndex(int index, int max, int dataLength) {
   return isIn;
 }
 
-bool isLengthValid(int index, int max, int dataLength) {
-  bool isIn = false;
+bool isLastRow(int rowIndex, int max, int dataLength) {
+  bool isLast = false;
 
-  if (index * max + max > dataLength) {
-    isIn = true;
+  if (rowIndex * max + max > dataLength) {
+    isLast = true;
   }
 
-  return isIn;
+  return isLast;
 }

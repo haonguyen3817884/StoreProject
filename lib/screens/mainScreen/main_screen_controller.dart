@@ -16,7 +16,13 @@ import 'package:flutter/material.dart';
 
 import "package:store_project/widgets/text_simple.dart";
 
-class PlaceScreenController extends BaseController {
+import "package:store_project/base/services/category_api.dart";
+
+import "package:store_project/routes/route_name.dart";
+
+import "package:store_project/screens/mainScreen/main_image_controller.dart";
+
+class MainScreenController extends BaseController {
   var isButtonOn = false.obs;
 
   var customerCategory = "".obs;
@@ -24,6 +30,8 @@ class PlaceScreenController extends BaseController {
   List<Category> categories = <Category>[].obs;
 
   var isCategoriesUpdated = false.obs;
+
+  final _categoryApi = CategoryApi();
 
   final GlobalKey<SideMenuState> sideMenuKey = GlobalKey<SideMenuState>();
   ScrollController scrollController = ScrollController();
@@ -43,25 +51,19 @@ class PlaceScreenController extends BaseController {
   }
 
   Future<void> setCategories() async {
-    var endPoint =
-        "http://www.stuckwallpapers.com/GetCategoriesv3json.aspx?version=2.0.1";
+    List<Category> apiCategories = await _categoryApi.getCategories();
 
-    var uri = Uri.parse(endPoint);
+    for (int i = 0; i < apiCategories.length; ++i) {
+      categories.add(apiCategories[i]);
 
-    var response = await http.get(uri);
-
-    List<dynamic> decodedData = convert.jsonDecode(response.body);
-
-    for (int i = 0; i < decodedData.length; ++i) {
-      Category category = Category(decodedData[i]);
-
-      categories.add(category);
+      Get.put(MainImageController(apiCategories[i]),
+          tag: apiCategories[i].getName());
     }
 
     updateIsCategoriesUpdated(true);
   }
 
-  void placeMenu() {
+  void toggleMenu() {
     final state = sideMenuKey.currentState!;
 
     if (state.isOpened) {
@@ -75,11 +77,11 @@ class PlaceScreenController extends BaseController {
     if ("" != customerCategory.value) {
       updateCustomerCategory(categories[indexValue].getName());
 
-      goToIndex(indexValue, totalWidth);
+      goToCategoryPosition(indexValue, totalWidth);
     }
   }
 
-  void goToIndex(int indexValue, double totalWidth) {
+  void goToCategoryPosition(int indexValue, double totalWidth) {
     if (indexValue * 105.4 < scrollController.position.pixels) {
       scrollController.jumpTo(indexValue * 105.4);
     } else {
@@ -90,7 +92,13 @@ class PlaceScreenController extends BaseController {
     }
   }
 
-  List<Widget> getMenuItems() {
+  void closeMenu() {
+    final state = sideMenuKey.currentState!;
+
+    state.closeSideMenu();
+  }
+
+  List<Widget> getMenuItems(double totalWidth) {
     List<Widget> items = <Widget>[];
 
     for (int i = 0; i < categories.length; ++i) {
@@ -103,7 +111,14 @@ class PlaceScreenController extends BaseController {
           tileColor: Colors.transparent.withOpacity(0.2),
           shape: Border(
               bottom: BorderSide(
-                  color: Colors.transparent.withOpacity(0.9), width: 0.3)));
+                  color: Colors.transparent.withOpacity(0.9), width: 0.3)),
+          onTap: () {
+            updateCustomerCategory(categories[i].getName());
+            goToCategoryPosition(i, totalWidth);
+            pageController.jumpToPage(i);
+
+            closeMenu();
+          });
 
       items.add(item);
     }
