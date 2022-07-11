@@ -28,7 +28,7 @@ class AgeTextPlace extends GetView<AgeScreenController> {
           margin: const EdgeInsets.only(top: 15, bottom: 0)),
       const SizedBox(
           child: TextSimple(textValue: "are adapted to your screen")),
-      const SizedBox(height: 74.0),
+      SizedBox(height: MediaQuery.of(context).size.height * 0.1),
       Button(
           text: "CONTINUE",
           buttonAction: () {

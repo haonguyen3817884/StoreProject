@@ -6,8 +6,11 @@ import "package:store_project/screens/imageScreen/image_screen_controller.dart";
 import "package:store_project/routes/route_name.dart";
 
 import "package:store_project/config/constant_values.dart";
-import "package:store_project/widgets/place_image.dart";
-import "package:store_project/config/index_loading.dart";
+import 'package:store_project/widgets/row_image.dart';
+import 'package:store_project/config/index_methods.dart';
+import "package:store_project/models/customerImage.dart";
+
+import "package:store_project/widgets/images_list.dart";
 
 class ImageScreenBinding extends Bindings {
   @override
@@ -31,10 +34,11 @@ class ImageScreen extends GetView<ImageScreenController> {
         blendMode: BlendMode.darken,
         child: Obx(() {
           return ColorFiltered(
-              colorFilter: ColorFilter.mode(Colors.black45, BlendMode.darken),
-              child: Container(
+              colorFilter:
+                  const ColorFilter.mode(Colors.black45, BlendMode.darken),
+              child: SizedBox(
                   child: (("" == controller.imageInput.value)
-                      ? Center(child: CircularProgressIndicator())
+                      ? const Center(child: CircularProgressIndicator())
                       : Image.network(controller.imageInput.value,
                           loadingBuilder: (BuildContext context, Widget child,
                               ImageChunkEvent? loadingProgress) {
@@ -56,11 +60,11 @@ class ImageScreen extends GetView<ImageScreenController> {
                   statusBarColor: Colors.transparent),
               backgroundColor: Colors.transparent,
               leading: IconButton(
-                  icon: Icon(Icons.close),
+                  icon: const Icon(Icons.close),
                   onPressed: () {
-                    controller.placeIn(RouteName.placePlace);
+                    controller.goToPage(RouteName.mainScreen);
                   })),
-          body: Center(child: Column(children: <Widget>[])),
+          body: Center(child: Column(children: const <Widget>[])),
           backgroundColor: Colors.transparent),
       DraggableScrollableSheet(
           initialChildSize: 0.2,
@@ -69,43 +73,23 @@ class ImageScreen extends GetView<ImageScreenController> {
           builder: (BuildContext context, ScrollController scrollController) {
             return Container(
                 child: Obx(() {
-                  return RefreshIndicator(
-                    onRefresh: controller.getRefresh,
-                    child: LoadAny(
-                      onLoadMore: controller.getLoadMore,
-                      status: controller.loadStatus.value,
-                      loadingMsg: ConstantValues.loading,
-                      errorMsg: ConstantValues.loadingError,
-                      finishMsg: ConstantValues.loadingFinish,
-                      child: CustomScrollView(slivers: <Widget>[
-                        SliverList(
-                          delegate: SliverChildBuilderDelegate(
-                            (BuildContext context, int index) {
-                              return PlaceImage(
-                                  places: controller.customerImages.sublist(
-                                      index * ConstantValues.maxItemsInOneLine,
-                                      index * ConstantValues.maxItemsInOneLine +
-                                          ((isLengthValid(
-                                                  index,
-                                                  ConstantValues
-                                                      .maxItemsInOneLine,
-                                                  controller.dataLength.value))
-                                              ? controller.dataLength.value %
-                                                  ConstantValues
-                                                      .maxItemsInOneLine
-                                              : ConstantValues
-                                                  .maxItemsInOneLine)));
-                            },
-                            childCount: (controller.dataLength.value /
-                                    ConstantValues.maxItemsInOneLine)
-                                .ceil(),
-                          ),
-                        ),
-                      ], controller: scrollController),
-                    ),
-                  );
+                  return ImagesList(
+                      getRefresh: controller.getRefresh,
+                      scrollController: scrollController,
+                      getLoadMore: controller.getLoadMore,
+                      loadStatus: controller.loadStatus.value,
+                      customerImages: controller.data,
+                      onImagePressed: controller.onImagePressed,
+                      dataLength: controller.dataLength.value,
+                      headList: const <Widget>[
+                        SliverToBoxAdapter(
+                            child: Icon(Icons.keyboard_arrow_up_outlined))
+                      ]);
                 }),
-                color: Color(0xFFFFFFFF));
+                padding: const EdgeInsets.only(top: 17.4),
+                decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(17.4),
+                    color: const Color(0xFFFFFFFF)));
           })
     ]);
   }

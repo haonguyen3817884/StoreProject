@@ -18,7 +18,11 @@ import "package:store_project/widgets/text_simple.dart";
 
 import "package:store_project/base/services/category_api.dart";
 
-class PlaceScreenController extends BaseController {
+import "package:store_project/routes/route_name.dart";
+
+import "package:store_project/screens/mainScreen/main_image_controller.dart";
+
+class MainScreenController extends BaseController {
   var isButtonOn = false.obs;
 
   var customerCategory = "".obs;
@@ -51,12 +55,15 @@ class PlaceScreenController extends BaseController {
 
     for (int i = 0; i < apiCategories.length; ++i) {
       categories.add(apiCategories[i]);
+
+      Get.put(MainImageController(apiCategories[i]),
+          tag: apiCategories[i].getName());
     }
 
     updateIsCategoriesUpdated(true);
   }
 
-  void placeMenu() {
+  void toggleMenu() {
     final state = sideMenuKey.currentState!;
 
     if (state.isOpened) {
@@ -70,11 +77,11 @@ class PlaceScreenController extends BaseController {
     if ("" != customerCategory.value) {
       updateCustomerCategory(categories[indexValue].getName());
 
-      goToIndex(indexValue, totalWidth);
+      goToCategoryPosition(indexValue, totalWidth);
     }
   }
 
-  void goToIndex(int indexValue, double totalWidth) {
+  void goToCategoryPosition(int indexValue, double totalWidth) {
     if (indexValue * 105.4 < scrollController.position.pixels) {
       scrollController.jumpTo(indexValue * 105.4);
     } else {
@@ -107,7 +114,7 @@ class PlaceScreenController extends BaseController {
                   color: Colors.transparent.withOpacity(0.9), width: 0.3)),
           onTap: () {
             updateCustomerCategory(categories[i].getName());
-            goToIndex(i, totalWidth);
+            goToCategoryPosition(i, totalWidth);
             pageController.jumpToPage(i);
 
             closeMenu();

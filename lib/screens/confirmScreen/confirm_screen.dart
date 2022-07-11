@@ -35,7 +35,7 @@ class ConfirmScreen extends GetView<ConfirmScreenController> {
                               crossAxisAlignment: CrossAxisAlignment.start),
                           margin:
                               const EdgeInsets.only(top: 27.4, bottom: 27.4),
-                          width: 274.0),
+                          width: MediaQuery.of(context).size.width * 0.8),
                       Button(
                           text: "Continue",
                           buttonAction: () {
@@ -44,8 +44,8 @@ class ConfirmScreen extends GetView<ConfirmScreenController> {
                     ],
                     crossAxisAlignment: CrossAxisAlignment.start,
                     mainAxisAlignment: MainAxisAlignment.start),
-                width: 274.0,
-                margin: EdgeInsets.only(top: 74.0))),
+                width: MediaQuery.of(context).size.width * 0.8,
+                margin: const EdgeInsets.only(top: 74.0))),
         backgroundColor: Colors.black);
   }
 }

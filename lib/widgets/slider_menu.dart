@@ -3,11 +3,11 @@ import 'package:get/get.dart';
 import "package:store_project/widgets/text_logo.dart";
 import "package:store_project/widgets/text_simple.dart";
 
-import "package:store_project/screens/placeScreen/place_screen_controller.dart";
+import 'package:store_project/screens/mainScreen/main_screen_controller.dart';
 import "dart:ui";
 
-class PlaceMenu extends GetView<PlaceScreenController> {
-  const PlaceMenu({Key? key}) : super(key: key);
+class SliderMenu extends GetView<MainScreenController> {
+  const SliderMenu({Key? key}) : super(key: key);
 
   @override
   Widget build(BuildContext context) {

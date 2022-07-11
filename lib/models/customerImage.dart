@@ -1,4 +1,5 @@
 import 'package:json_annotation/json_annotation.dart';
+import "package:store_project/config/index_methods.dart";
 
 /// This allows the `User` class to access private members in
 /// the generated file. The value for this is *.g.dart, where
@@ -31,6 +32,20 @@ class CustomerImage {
 
   void setCustomerImageUrl(String customerImageUrl) {
     customerImageUrl = customerImageUrl;
+  }
+
+  static List<CustomerImage> getImagesByRow(
+      List<CustomerImage> customerImages, int rowIndex, int max) {
+    List<CustomerImage> imageList = <CustomerImage>[];
+
+    imageList = customerImages.sublist(
+        rowIndex * max,
+        rowIndex * max +
+            ((isLastRow(rowIndex, max, customerImages.length))
+                ? customerImages.length % max
+                : max));
+
+    return imageList;
   }
 
   /// A necessary factory constructor for creating a new User instance

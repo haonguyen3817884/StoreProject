@@ -25,8 +25,8 @@ class MyApp extends StatelessWidget {
           primarySwatch: Colors.blue,
         ),
         initialRoute: (null == storage.read("customerAge"))
-            ? RouteName.agePlace
-            : RouteName.placePlace,
+            ? RouteName.ageScreen
+            : RouteName.mainScreen,
         getPages: RoutePlaces.places);
   }
 }

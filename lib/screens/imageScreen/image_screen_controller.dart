@@ -1,13 +1,15 @@
 import 'package:get/get.dart';
 import 'package:loadany/loadany.dart';
-import "package:store_project/base/base_controller.dart";
+import "package:store_project/base/list_controller.dart";
 
 import "package:store_project/models/customerImage.dart";
 import "package:store_project/base/services/customer_image_api.dart";
 import "package:store_project/config/constant_values.dart";
 
-class ImageScreenController extends BaseController {
-  dynamic data = Get.arguments;
+import "package:store_project/routes/route_name.dart";
+
+class ImageScreenController extends ListController<CustomerImage> {
+  dynamic arguments = Get.arguments;
 
   late CustomerImage customerImage;
 
@@ -15,26 +17,7 @@ class ImageScreenController extends BaseController {
 
   var customerCategory = "".obs;
 
-  List<CustomerImage> customerImages = <CustomerImage>[].obs;
-
-  var index = 0.obs;
-
-  var dataLength = 0.obs;
-  var loadStatus = LoadStatus.normal.obs;
-
   final _customerImageApi = CustomerImageApi();
-
-  void updateIndex(int indexValue) {
-    index.value = indexValue;
-  }
-
-  void updateDataLength(int length) {
-    dataLength.value = length;
-  }
-
-  void updateLoadStatus(LoadStatus placeStatus) {
-    loadStatus.value = placeStatus;
-  }
 
   void updateImageInput(String placeImage) {
     imageInput.value = placeImage;
@@ -44,35 +27,33 @@ class ImageScreenController extends BaseController {
     customerCategory.value = category;
   }
 
-  Future<void> updateCustomerImages(List<CustomerImage> images) async {
-    for (int i = 0; i < images.length; ++i) {
-      CustomerImage customerImage = images[i];
+  Future<void> updateData(
+      int startIndex, int endIndex, String categoryName) async {
+    List<CustomerImage> images =
+        await _customerImageApi.getImages(startIndex, endIndex, categoryName);
+    await setData(images);
 
-      customerImages.add(customerImage);
+    if (ConstantValues.maxItems + 1 != images.length) {
+      updateLoadStatus(LoadStatus.completed);
+    } else {
+      updateIndex(endIndex + 1);
+
+      updateLoadStatus(LoadStatus.normal);
     }
+
+    updateDataLength(data.length);
   }
 
   Future<void> getRefresh() async {
-    customerImages = <CustomerImage>[].obs;
+    data = <CustomerImage>[].obs;
 
     updateDataLength(0);
 
     return await Future.delayed(const Duration(milliseconds: 400), () async {
-      List<CustomerImage> images = await _customerImageApi.getImages(
+      updateData(
           ConstantValues.startIndex,
           ConstantValues.startIndex + ConstantValues.maxItems,
           customerCategory.value);
-      await updateCustomerImages(images);
-
-      if (ConstantValues.maxItems + 1 != images.length) {
-        updateLoadStatus(LoadStatus.completed);
-      } else {
-        updateIndex(ConstantValues.startIndex + ConstantValues.maxItems + 1);
-
-        updateLoadStatus(LoadStatus.normal);
-      }
-
-      updateDataLength(customerImages.length);
     });
   }
 
@@ -80,58 +61,38 @@ class ImageScreenController extends BaseController {
     updateLoadStatus(LoadStatus.loading);
 
     return await Future.delayed(const Duration(milliseconds: 5000), () async {
-      List<CustomerImage> images = await _customerImageApi.getImages(
-          index.value,
-          index.value + ConstantValues.maxItems,
+      updateData(index.value, index.value + ConstantValues.maxItems,
           customerCategory.value);
-
-      await updateCustomerImages(images);
-
-      if (ConstantValues.maxItems + 1 != images.length) {
-        updateLoadStatus(LoadStatus.completed);
-      } else {
-        updateIndex(index.value + ConstantValues.maxItems + 1);
-
-        updateLoadStatus(LoadStatus.normal);
-      }
-
-      updateDataLength(customerImages.length);
     });
+  }
+
+  void onImagePressed(CustomerImage customerImage) {
+    updateImageInput(customerImage.getCustomerImageUrl());
+    customerImage = customerImage;
   }
 
   @override
   void onReady() {
     super.onReady();
 
-    customerImage = CustomerImage.fromJson(data["customerImage"]);
+    customerImage = CustomerImage.fromJson(arguments["customerImage"]);
 
     customerCategory.listen((value) async {
       updateLoadStatus(LoadStatus.loading);
 
-      customerImages = <CustomerImage>[].obs;
+      data = <CustomerImage>[].obs;
 
       updateDataLength(0);
 
       return await Future.delayed(const Duration(milliseconds: 5000), () async {
-        List<CustomerImage> images = await _customerImageApi.getImages(
+        updateData(
             ConstantValues.startIndex,
             ConstantValues.startIndex + ConstantValues.maxItems,
             customerCategory.value);
-        await updateCustomerImages(images);
-
-        if (ConstantValues.maxItems + 1 != images.length) {
-          updateLoadStatus(LoadStatus.completed);
-        } else {
-          updateIndex(ConstantValues.startIndex + ConstantValues.maxItems + 1);
-
-          updateLoadStatus(LoadStatus.normal);
-        }
-
-        updateDataLength(customerImages.length);
       });
     });
 
     updateImageInput(customerImage.getCustomerImageUrl());
-    updateCustomerCategory(data["customerCategory"]);
+    updateCustomerCategory(arguments["customerCategory"]);
   }
 }

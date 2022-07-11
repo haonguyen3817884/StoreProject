@@ -8,6 +8,8 @@ import "package:store_project/routes/route_name.dart";
 import "package:store_project/widgets/text_simple.dart";
 import 'package:wheel_chooser/wheel_chooser.dart';
 
+import "package:store_project/config/constant_values.dart";
+
 class AgeInputPlace extends GetView<AgeScreenController> {
   const AgeInputPlace({Key? key}) : super(key: key);
 
@@ -26,37 +28,22 @@ class AgeInputPlace extends GetView<AgeScreenController> {
             onValueChanged: (value) {
               controller.updateAgeValue(value);
             },
-            maxValue: 100,
-            minValue: 0,
-            step: 1,
+            maxValue: ConstantValues.maxAge,
+            minValue: ConstantValues.minAge,
+            step: ConstantValues.stepAge,
             initValue: controller.ageValue.value,
             horizontal: true,
-            listWidth: 174.0,
+            listWidth: MediaQuery.of(context).size.width * 0.4,
             selectTextStyle:
                 const TextStyle(color: Color.fromARGB(255, 98, 98, 98)),
             unSelectTextStyle:
                 const TextStyle(color: Color.fromARGB(255, 98, 98, 98)));
       }),
-      const SizedBox(height: 174.0),
+      const Expanded(child: SizedBox()),
       Button(
           text: "CONTINUE",
           buttonAction: () {
-            controller.placeIn(RouteName.confirmPlace, data: {
-              "title":
-                  "Allow access to your identifier for tracking and get rid of useless ads",
-              "texts": [
-                "Many people doesn't love ads. But intrusive and useless ads irritates much stronger",
-                "Not a long ago Apple had changed their policies to boost up user control over information about their interests privacy",
-                "This information is analyzed and applied when forming advertisments. As you know this process is called tracking. Tracking allows ad SDK to select ads with goods and services that might be interesting to you.",
-                "Privacy is matters. Regardless of your choice, we still respect you"
-              ],
-              "action": () {
-                final ageController = Get.put(AgeScreenController());
-
-                ageController.saveAge();
-                ageController.placeIn(RouteName.placePlace);
-              }
-            });
+            controller.onAgeSubmit();
           })
     ]);
   }

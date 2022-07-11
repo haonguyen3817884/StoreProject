@@ -7,22 +7,25 @@ import "package:store_project/models/customerImage.dart";
 
 import "dart:ui";
 
-import "package:store_project/screens/placeScreen/place_screen_controller.dart";
+import 'package:store_project/screens/mainScreen/main_screen_controller.dart';
 
 import "package:store_project/routes/route_name.dart";
 
-class PlaceImage extends GetView<PlaceScreenController> {
-  const PlaceImage({Key? key, required this.places}) : super(key: key);
+class RowImage extends StatelessWidget {
+  const RowImage({Key? key, required this.images, required this.onImagePressed})
+      : super(key: key);
 
-  final List<CustomerImage> places;
+  final List<CustomerImage> images;
 
-  List<Widget> getPlaces(BuildContext context) {
-    List<Widget> placeArr = <Widget>[];
+  final Function onImagePressed;
 
-    for (int i = 0; i < places.length; ++i) {
-      Widget place = GestureDetector(
+  List<Widget> getImages(BuildContext context) {
+    List<Widget> imageWidgetArr = <Widget>[];
+
+    for (int i = 0; i < images.length; ++i) {
+      Widget imageWidget = GestureDetector(
           child: Container(
-              child: Image.network(places[i].getCustomerImageUrl(),
+              child: Image.network(images[i].getCustomerImageUrl(),
                   loadingBuilder: (BuildContext context, Widget child,
                       ImageChunkEvent? loadingProgress) {
                 if (loadingProgress == null) {
@@ -40,23 +43,17 @@ class PlaceImage extends GetView<PlaceScreenController> {
                       0.8) /
                   ConstantValues.maxItemsInOneLine),
           onTap: () {
-            final PlaceScreenController placeScreenController =
-                Get.put(PlaceScreenController());
-
-            placeScreenController.placeIn(RouteName.imagePlace, data: {
-              "customerCategory": controller.customerCategory.value,
-              "customerImage": places[i].toJson()
-            });
+            onImagePressed(images[i]);
           });
 
-      placeArr.add(place);
+      imageWidgetArr.add(imageWidget);
     }
 
-    return placeArr;
+    return imageWidgetArr;
   }
 
   @override
   Widget build(BuildContext context) {
-    return Row(children: getPlaces(context));
+    return Row(children: getImages(context));
   }
 }
